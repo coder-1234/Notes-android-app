@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingHorizontal="10dp"
+    android:paddingBottom="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+        <TextView
+            android:id="@+id/item_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/title"
+            style="@style/TextAppearance.Material3.TitleLarge"
+            />
+        <TextView
+            android:id="@+id/item_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/description_val"
+            android:layout_below="@id/item_title"/>
+
+        <ImageButton
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@android:drawable/btn_dialog"
+            android:layout_alignParentEnd="true"
+            android:contentDescription="@string/del"/>
+
+
+</RelativeLayout>
