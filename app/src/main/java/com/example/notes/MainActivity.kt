@@ -13,6 +13,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var db: NoteDB
     private lateinit var titleTxt:EditText
     private lateinit var descriptionTxt:EditText
+    private lateinit var searchTxt:EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,11 +21,16 @@ class MainActivity : AppCompatActivity() {
         db = NoteDB.getDatabase(this)
         titleTxt = findViewById(R.id.input_title)
         descriptionTxt = findViewById(R.id.description)
+        searchTxt = findViewById(R.id.search)
         val btn = findViewById<Button>(R.id.btn_add_note)
+        getAllNotes()
         btn.setOnClickListener {
             insertNewNote(titleTxt.text.toString(),descriptionTxt.text.toString())
         }
-        getAllNotes()
+        val btnSearch = findViewById<Button>(R.id.search_go_btn)
+        btnSearch.setOnClickListener {
+            filterNotes(searchTxt.text.toString())
+        }
     }
 
     private fun insertNewNote(t:String,d:String){
@@ -33,27 +39,26 @@ class MainActivity : AppCompatActivity() {
         }
         titleTxt.text.clear()
         descriptionTxt.text.clear()
-        getAllNotes()
     }
 
     fun deleteNote(note:Note){
         db.noteDao().deleteNote(note)
-        getAllNotes()
     }
 
     private fun getAllNotes(){
         val recyclerView = findViewById<RecyclerView>(R.id.list)
-        val notes: List<Note> = db.noteDao().getNotes().reversed()
-        recyclerView.apply {
-            addItemDecoration(
-                DividerItemDecoration(
-                    baseContext,
-                    LinearLayoutManager.VERTICAL
+        db.noteDao().getNotes().observe(this){
+            recyclerView.apply {
+                addItemDecoration(
+                    DividerItemDecoration(
+                        baseContext,
+                        LinearLayoutManager.VERTICAL
+                    )
                 )
-            )
-            setHasFixedSize(true)
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = NotesItemAdapter(this@MainActivity,notes)
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(this@MainActivity)
+                adapter = NotesItemAdapter(this@MainActivity,it.reversed())
+            }
         }
     }
 
@@ -62,6 +67,26 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("title",note.title)
         intent.putExtra("description",note.description)
         startActivity(intent)
+    }
 
+    private fun filterNotes(searchStr:String){
+        if(searchStr.isEmpty()){
+            getAllNotes()
+        } else {
+            val recyclerView = findViewById<RecyclerView>(R.id.list)
+            db.noteDao().filterNotes(searchStr).observe(this){
+                recyclerView.apply {
+                    addItemDecoration(
+                        DividerItemDecoration(
+                            baseContext,
+                            LinearLayoutManager.VERTICAL
+                        )
+                    )
+                    setHasFixedSize(true)
+                    layoutManager = LinearLayoutManager(this@MainActivity)
+                    adapter = NotesItemAdapter(this@MainActivity, it.reversed())
+                }
+            }
+        }
     }
 }

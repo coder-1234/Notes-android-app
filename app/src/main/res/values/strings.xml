@@ -7,4 +7,7 @@
     <string name="description_val">Description</string>
     <string name="del">DEL</string>
     <string name="go_to_main">Go to Main</string>
+    <string name="your_notes">Your notes</string>
+    <string name="search_title">Search title</string>
+    <string name="search">search</string>
 </resources>
