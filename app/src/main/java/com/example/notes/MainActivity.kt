@@ -3,51 +3,54 @@ package com.example.notes
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.notes.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var db: NoteDB
-    private lateinit var titleTxt:EditText
-    private lateinit var descriptionTxt:EditText
-    private lateinit var searchTxt:EditText
+    private lateinit var mainViewModel: MainViewModel
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        db = NoteDB.getDatabase(this)
-        titleTxt = findViewById(R.id.input_title)
-        descriptionTxt = findViewById(R.id.description)
-        searchTxt = findViewById(R.id.search)
-        val btn = findViewById<Button>(R.id.btn_add_note)
+        binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
+
+        val dao = NoteDB.getDatabase(this).noteDao()
+        mainViewModel = ViewModelProvider(this,MainViewModelFactory(NoteRepository(dao)))[MainViewModel::class.java]
+
         getAllNotes()
-        btn.setOnClickListener {
-            insertNewNote(titleTxt.text.toString(),descriptionTxt.text.toString())
+
+        binding.btnAddNote.setOnClickListener {
+            insertNewNote(binding.inputTitle.text.toString(),binding.description.text.toString())
         }
-        val btnSearch = findViewById<Button>(R.id.search_go_btn)
-        btnSearch.setOnClickListener {
-            filterNotes(searchTxt.text.toString())
+
+        binding.searchGoBtn.setOnClickListener {
+            filterNotes(binding.search.text.toString())
         }
     }
 
     private fun insertNewNote(t:String,d:String){
         if(t.isNotEmpty()){
-            db.noteDao().insertNote(Note(null, title = t, description = d))
+            mainViewModel.insertNote(Note(0,title = t, description = d))
         }
-        titleTxt.text.clear()
-        descriptionTxt.text.clear()
+        else {
+            Toast.makeText(this,"Title cannot be empty",Toast.LENGTH_LONG).show()
+        }
+        binding.inputTitle.text.clear()
+        binding.description.text.clear()
     }
 
     fun deleteNote(note:Note){
-        db.noteDao().deleteNote(note)
+        mainViewModel.deleteNote(note)
     }
 
     private fun getAllNotes(){
         val recyclerView = findViewById<RecyclerView>(R.id.list)
-        db.noteDao().getNotes().observe(this){
+        mainViewModel.getNotes().observe(this){
             recyclerView.apply {
                 addItemDecoration(
                     DividerItemDecoration(
@@ -64,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     fun startNoteViewActivity(note:Note){
         val intent = Intent(this@MainActivity,NoteViewActivity::class.java)
+        intent.putExtra("id",note.id)
         intent.putExtra("title",note.title)
         intent.putExtra("description",note.description)
         startActivity(intent)
@@ -74,7 +78,7 @@ class MainActivity : AppCompatActivity() {
             getAllNotes()
         } else {
             val recyclerView = findViewById<RecyclerView>(R.id.list)
-            db.noteDao().filterNotes(searchStr).observe(this){
+            mainViewModel.filterNotes(searchStr).observe(this){
                 recyclerView.apply {
                     addItemDecoration(
                         DividerItemDecoration(
