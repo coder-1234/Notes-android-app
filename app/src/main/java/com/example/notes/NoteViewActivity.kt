@@ -15,8 +15,8 @@ class NoteViewActivity:AppCompatActivity() {
     private var id:Int = -1
 
     override fun onBackPressed() {
-        Log.d("hello",id.toString()+binding.titleTxt.text.toString())
-        mainViewModel.editNote(Note(id,binding.titleTxt.text.toString(),binding.descriptionTxt.text.toString()))
+        if(binding.titleTxt.text.isNotBlank())
+            mainViewModel.editNote(Note(id,binding.titleTxt.text.toString(),binding.descriptionTxt.text.toString()))
         super.onBackPressed()
     }
 

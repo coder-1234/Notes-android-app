@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notes.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),Interactor {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var binding: ActivityMainBinding
 
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun insertNewNote(t:String,d:String){
-        if(t.isNotEmpty()){
+        if(t.isNotBlank()){
             mainViewModel.insertNote(Note(0,title = t, description = d))
         }
         else {
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         binding.description.text.clear()
     }
 
-    fun deleteNote(note:Note){
+    override fun onClickDelete(note: Note) {
         mainViewModel.deleteNote(note)
     }
 
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun startNoteViewActivity(note:Note){
+    override fun onClickStartActivity(note: Note) {
         val intent = Intent(this@MainActivity,NoteViewActivity::class.java)
         intent.putExtra("id",note.id)
         intent.putExtra("title",note.title)
@@ -74,23 +74,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun filterNotes(searchStr:String){
-        if(searchStr.isEmpty()){
-            getAllNotes()
-        } else {
-            val recyclerView = findViewById<RecyclerView>(R.id.list)
-            mainViewModel.filterNotes(searchStr).observe(this){
-                recyclerView.apply {
-                    addItemDecoration(
-                        DividerItemDecoration(
-                            baseContext,
-                            LinearLayoutManager.VERTICAL
-                        )
+        val recyclerView = findViewById<RecyclerView>(R.id.list)
+        mainViewModel.filterNotes(searchStr).observe(this){
+            recyclerView.apply {
+                addItemDecoration(
+                    DividerItemDecoration(
+                        baseContext,
+                        LinearLayoutManager.VERTICAL
                     )
-                    setHasFixedSize(true)
-                    layoutManager = LinearLayoutManager(this@MainActivity)
-                    adapter = NotesItemAdapter(this@MainActivity, it.reversed())
-                }
+                )
+                setHasFixedSize(true)
+                layoutManager = LinearLayoutManager(this@MainActivity)
+                adapter = NotesItemAdapter(this@MainActivity,it.reversed())
             }
         }
+
     }
 }
