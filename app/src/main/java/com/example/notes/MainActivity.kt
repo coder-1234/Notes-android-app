@@ -8,7 +8,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.notes.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(),Interactor {
@@ -31,17 +30,16 @@ class MainActivity : AppCompatActivity(),Interactor {
         binding.searchGoBtn.setOnClickListener {
             filterNotes(binding.search.text.toString())
         }
+
     }
 
     private fun insertNewNote(t:String,d:String){
         if(t.isNotBlank()){
             mainViewModel.insertNote(Note(0,title = t, description = d))
+            binding.inputTitle.text.clear()
+            binding.description.text.clear()
         }
-        else {
-            Toast.makeText(this,"Title cannot be empty",Toast.LENGTH_LONG).show()
-        }
-        binding.inputTitle.text.clear()
-        binding.description.text.clear()
+        else Toast.makeText(this,"Title cannot be empty",Toast.LENGTH_LONG).show()
     }
 
     override fun onClickDelete(note: Note) {
@@ -49,20 +47,7 @@ class MainActivity : AppCompatActivity(),Interactor {
     }
 
     private fun getAllNotes(){
-        val recyclerView = findViewById<RecyclerView>(R.id.list)
-        mainViewModel.getNotes().observe(this){
-            recyclerView.apply {
-                addItemDecoration(
-                    DividerItemDecoration(
-                        baseContext,
-                        LinearLayoutManager.VERTICAL
-                    )
-                )
-                setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(this@MainActivity)
-                adapter = NotesItemAdapter(this@MainActivity,it.reversed())
-            }
-        }
+        mainViewModel.getNotes().observe(this){ setNotesView(it) }
     }
 
     override fun onClickStartActivity(note: Note) {
@@ -74,20 +59,11 @@ class MainActivity : AppCompatActivity(),Interactor {
     }
 
     private fun filterNotes(searchStr:String){
-        val recyclerView = findViewById<RecyclerView>(R.id.list)
-        mainViewModel.filterNotes(searchStr).observe(this){
-            recyclerView.apply {
-                addItemDecoration(
-                    DividerItemDecoration(
-                        baseContext,
-                        LinearLayoutManager.VERTICAL
-                    )
-                )
-                setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(this@MainActivity)
-                adapter = NotesItemAdapter(this@MainActivity,it.reversed())
-            }
-        }
+        mainViewModel.filterNotes(searchStr).observe(this){setNotesView(it)}
+    }
 
+    private fun setNotesView(it:List<Note>){
+        binding.myAdapter = NotesItemAdapter(this@MainActivity,it.reversed())
+        binding.list.addItemDecoration(DividerItemDecoration(baseContext, LinearLayoutManager.VERTICAL))
     }
 }
