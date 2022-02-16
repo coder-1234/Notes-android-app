@@ -17,10 +17,14 @@ abstract class NoteDB:RoomDatabase() {
             if(INSTANCE==null){
                 synchronized(this){
                     INSTANCE = Room.databaseBuilder(context, NoteDB::class.java, "notes-db")
-                        .allowMainThreadQueries().build()
+                        .build()
                 }
             }
             return INSTANCE!!
+        }
+
+        fun destroyDatabase(){
+            INSTANCE = null
         }
     }
 }

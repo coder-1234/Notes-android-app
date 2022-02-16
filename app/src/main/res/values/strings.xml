@@ -10,4 +10,6 @@
     <string name="your_notes">Your notes</string>
     <string name="search_title">Search title</string>
     <string name="search">search</string>
+    <string name="google_sign_in">Google Sign in</string>
+    <string name="logout">logout</string>
 </resources>

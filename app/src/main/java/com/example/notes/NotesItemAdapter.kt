@@ -25,10 +25,8 @@ class NoteViewHolder(private var bind:NotesItemsBinding,private var interactor: 
         bind.itemTitle.text = note.title
         bind.itemDescription.text = note.description
         bind.deleteButton.setOnClickListener{
-            //(context).deleteNote(note)
             interactor.onClickDelete(note)
         }
-        //bind.root.setOnClickListener{(context).startNoteViewActivity(note)}
         bind.root.setOnClickListener{interactor.onClickStartActivity(note)}
     }
 }
